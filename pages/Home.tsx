@@ -4,6 +4,7 @@ import { Icon } from '../components/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BLOG_POSTS } from '../data/blogData';
 
+
 // Social Icons Components (Keep as is)
 const GoogleIcon = () => (
     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -38,6 +39,7 @@ const FacebookIcon = () => (
 
 export const Home: React.FC = () => {
     const navigate = useNavigate();
+
     const [districtIndex, setDistrictIndex] = useState(0);
     const districts = ["Thrissur", "Kochi", "Malappuram", "Palakkad", "Kozhikode", "Trivandrum", "Kannur"];
 
@@ -93,8 +95,12 @@ export const Home: React.FC = () => {
                         </motion.div>
 
                         <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl dark:text-white text-gray-900 leading-[1.0] mb-8 tracking-tight transition-colors">
-                            <motion.div className="overflow-hidden" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } } }}>Forging</motion.div>
-                            <motion.span className="text-platinum block" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut", delay: 0.2 } } }}>Elites.</motion.span>
+                            <motion.div className="overflow-hidden" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } } }}>
+                                <span>Forging</span>
+                            </motion.div>
+                            <motion.span className="text-platinum block" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut", delay: 0.2 } } }}>
+                                <span>Elites.</span>
+                            </motion.span>
                         </h1>
 
                         <motion.p variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="dark:text-gray-400 text-gray-600 text-lg md:text-xl mb-12 leading-relaxed max-w-lg font-light border-l border-primary/30 pl-6 transition-colors">
@@ -135,9 +141,9 @@ export const Home: React.FC = () => {
                             className="relative w-full h-full rounded-[2rem] overflow-hidden border dark:border-white/10 border-black/10 shadow-2xl glass-card transition-all duration-500"
                         >
                             <img
-                                src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2670&auto=format&fit=crop"
+                                src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2670&auto=format&fit=crop"
                                 className="w-full h-full object-cover opacity-90 hover:scale-110 transition-transform duration-[3s]"
-                                alt="Communication Skills Class"
+                                alt="Public Speaking Masterclass"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t dark:from-background-dark from-white via-transparent to-transparent"></div>
                         </motion.div>

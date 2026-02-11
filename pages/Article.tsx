@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '../components/Icon';
 import { getBlogPost } from '../data/blogData';
+import { useLanguage } from '../src/context/LanguageContext';
 
 export const Article: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { language } = useLanguage();
     const article = id ? getBlogPost(id) : null;
 
     useEffect(() => {
@@ -32,7 +34,7 @@ export const Article: React.FC = () => {
             />
 
             {/* Header Image */}
-            <div className="relative h-[50vh] w-full">
+            <div className="relative h-[50vh] w-full md:mt-24">
                 <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/80 to-transparent"></div>
 
@@ -42,35 +44,54 @@ export const Article: React.FC = () => {
                     </button>
                 </div>
 
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 max-w-4xl mx-auto">
-                    <div className="flex gap-4 text-xs font-bold uppercase tracking-widest mb-4">
-                        <span className="bg-primary text-black px-2 py-1 rounded-sm">{article.category}</span>
-                        <span className="text-gray-400 py-1">{article.readTime}</span>
-                    </div>
-                    <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-white leading-tight mb-6 drop-shadow-lg">
-                        {article.title}
-                    </h1>
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-surface-dark-2 border border-white/10 flex items-center justify-center text-primary font-serif">
-                            {article.author.charAt(0)}
+                <AnimatePresence mode='wait'>
+                    <motion.div
+                        key={`header-${language}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute bottom-0 left-0 w-full p-6 md:p-12 max-w-4xl mx-auto"
+                    >
+                        <div className="flex gap-4 text-xs font-bold uppercase tracking-widest mb-4">
+                            <span className="bg-primary text-black px-2 py-1 rounded-sm">{article.category}</span>
+                            <span className="text-gray-400 py-1">{article.readTime}</span>
                         </div>
-                        <div>
-                            <p className="text-white text-sm font-bold">{article.author}</p>
-                            <p className="text-gray-500 text-xs">{article.date}</p>
+                        <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-white leading-tight mb-6 drop-shadow-lg">
+                            {language === 'ml' ? (article.title_ml || article.title) : article.title}
+                        </h1>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-surface-dark-2 border border-white/10 flex items-center justify-center text-primary font-serif">
+                                {article.author.charAt(0)}
+                            </div>
+                            <div>
+                                <p className="text-white text-sm font-bold">{article.author}</p>
+                                <p className="text-gray-500 text-xs">{article.date}</p>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[1fr_350px] gap-12 mt-12">
 
                 {/* Main Content */}
                 <article className="prose prose-invert prose-lg max-w-none">
-                    <p className="lead text-xl text-gray-300 font-light border-l-4 border-primary pl-6 mb-12 italic">
-                        {article.excerpt}
-                    </p>
+                    <AnimatePresence mode='wait'>
+                        <motion.div
+                            key={`body-${language}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <p className="lead text-xl text-gray-300 font-light border-l-4 border-primary pl-6 mb-12 italic">
+                                {language === 'ml' ? (article.summary_ml || article.excerpt) : article.excerpt}
+                            </p>
 
-                    <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                            <div dangerouslySetInnerHTML={{ __html: language === 'ml' ? (article.content_ml || article.content) : article.content }} />
+                        </motion.div>
+                    </AnimatePresence>
 
                     {/* Tags */}
                     <div className="mt-12 pt-8 border-t border-white/10 flex gap-2 flex-wrap">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from './Icon';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../src/context/LanguageContext';
 
 const navLinks = [
   { path: '/', label: 'Home', sub: 'Main Hub' },
@@ -15,6 +16,8 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { language, toggleLanguage } = useLanguage();
+  const isBlogPage = location.pathname.includes('/blog') || location.pathname.includes('/article');
 
   const [isDark, setIsDark] = useState(() => {
     if (typeof document !== 'undefined') {
@@ -62,14 +65,17 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group relative z-50">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary via-[#FBF5B7] to-primary-dark flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.2)] group-hover:shadow-[0_0_30px_rgba(212,175,55,0.6)] transition-all duration-500">
-              <Icon name="diamond" className="text-black" />
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="font-serif text-xl font-bold tracking-[0.2em] dark:text-white text-black group-hover:text-primary transition-colors">RAPIDS</span>
-              <span className="text-[8px] uppercase tracking-[0.3em] text-primary/80 font-bold hidden md:block opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">Training Institute</span>
-            </div>
+          {/* Brand Logo with Hover Subtitle */}
+          {/* Brand Logo with Hover Subtitle */}
+          <Link to="/" className="group flex flex-col items-start justify-center text-left">
+            {/* Main Text */}
+            <span className="text-2xl font-bold dark:text-white text-black font-serif tracking-widest group-hover:text-[#D4AF37] transition-colors leading-none">
+              RAPIDS
+            </span>
+            {/* Subtitle - Hidden by default, slides down/fades in on hover */}
+            <span className="text-[0.6rem] text-[#D4AF37] uppercase tracking-[0.2em] -mt-1 opacity-0 transform -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              Training Institute
+            </span>
           </Link>
 
           {/* Desktop Nav */}
@@ -98,15 +104,72 @@ export const Navbar: React.FC = () => {
                 <Icon name={isDark ? "light_mode" : "dark_mode"} size="sm" />
               </button>
             )}
+
+            {/* Language Toggle */}
+            {isBlogPage && (
+              <div
+                onClick={toggleLanguage}
+                className="relative w-20 h-8 flex items-center bg-neutral-800 rounded-full p-1 cursor-pointer select-none"
+              >
+                {/* Sliding Pill */}
+                <motion.div
+                  className="absolute top-1 bottom-1 w-8 bg-white rounded-full shadow-sm z-0"
+                  initial={false}
+                  animate={{
+                    left: language === 'en' ? '4px' : 'calc(100% - 36px)'
+                  }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+
+                {/* Text Layer */}
+                <div className="absolute inset-0 flex justify-between items-center px-2 z-10 text-[10px] font-bold tracking-wider pointer-events-none">
+                  <span className={`w-8 text-center transition-colors duration-300 ${language === 'en' ? 'text-black' : 'text-gray-500'}`}>
+                    ENG
+                  </span>
+                  <span className={`w-8 text-center transition-colors duration-300 ${language === 'ml' ? 'text-black' : 'text-gray-500'}`}>
+                    MAL
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Icon */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 active:scale-90 transition-transform"
-          >
-            <Icon name={mobileMenuOpen ? "close" : "menu"} className={mobileMenuOpen ? "text-white" : "text-primary"} />
-          </button>
+          <div className="flex items-center gap-4 md:hidden">
+            {/* Mobile Language Toggle */}
+            {isBlogPage && (
+              <div
+                onClick={toggleLanguage}
+                className="relative w-20 h-8 flex items-center bg-neutral-800 rounded-full p-1 cursor-pointer select-none"
+              >
+                {/* Sliding Pill */}
+                <motion.div
+                  className="absolute top-1 bottom-1 w-8 bg-white rounded-full shadow-sm z-0"
+                  initial={false}
+                  animate={{
+                    left: language === 'en' ? '4px' : 'calc(100% - 36px)'
+                  }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                />
+                {/* Text Layer */}
+                <div className="absolute inset-0 flex justify-between items-center px-2 z-10 text-[10px] font-bold tracking-wider pointer-events-none">
+                  <span className={`w-8 text-center transition-colors duration-300 ${language === 'en' ? 'text-black' : 'text-gray-500'}`}>
+                    ENG
+                  </span>
+                  <span className={`w-8 text-center transition-colors duration-300 ${language === 'ml' ? 'text-black' : 'text-gray-500'}`}>
+                    MAL
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 active:scale-90 transition-transform"
+            >
+              <Icon name={mobileMenuOpen ? "close" : "menu"} className={mobileMenuOpen ? "text-white" : "text-primary"} />
+            </button>
+          </div>
         </div>
       </nav>
 

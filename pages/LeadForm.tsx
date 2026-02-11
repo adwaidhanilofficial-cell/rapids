@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
+import { useLanguage } from '../src/context/LanguageContext';
 
 declare global {
     interface Window {
@@ -11,6 +12,7 @@ declare global {
 
 export const LeadForm: React.FC = () => {
     const navigate = useNavigate();
+    const { language } = useLanguage();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -135,7 +137,17 @@ export const LeadForm: React.FC = () => {
                             RAPIDS
                         </h1>
                         <p className="text-[11px] tracking-[0.3em] text-primary font-bold uppercase">
-                            Secure Your Seat
+                            <AnimatePresence mode="wait">
+                                <motion.span
+                                    key={`seat-label-${language}`}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {language === 'ml' ? 'സീറ്റ് ഉറപ്പാക്കൂ' : 'Secure Your Seat'}
+                                </motion.span>
+                            </AnimatePresence>
                         </p>
                     </div>
 
@@ -171,7 +183,7 @@ export const LeadForm: React.FC = () => {
                         {error && <p className="text-red-500 text-xs tracking-wide bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center">{error}</p>}
 
                         <button className="w-full mt-6 py-5 bg-gold-platinum text-black font-serif font-bold tracking-[0.2em] text-sm uppercase hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-[0_10px_30px_rgba(212,175,55,0.2)] rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed" type="submit" disabled={loading}>
-                            {loading ? 'Processing...' : 'Secure Your Seat'}
+                            {loading ? 'Processing...' : (language === 'ml' ? 'സീറ്റ് ഉറപ്പാക്കൂ' : 'Secure Your Seat')}
                         </button>
                     </form>
 

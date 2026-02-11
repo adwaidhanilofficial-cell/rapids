@@ -64,7 +64,7 @@ export default function App() {
           <div className="flex flex-col gap-4 max-w-xs">
             <div className="flex items-center gap-2">
               <span className="material-icons-round text-primary">diamond</span>
-              <span className="font-serif text-lg font-bold tracking-[0.2em] text-white">RAPIDS</span>
+              <span className="font-serif text-lg font-bold tracking-[0.15em] text-white">RAPIDS TRAINING INSTITUTE</span>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
               Rapids Training Institutes.<br />

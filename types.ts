@@ -1,9 +1,9 @@
-export type Page = 
-  | 'home' 
-  | 'courses' 
-  | 'landing-communication' 
-  | 'lead-form' 
-  | 'article' 
+export type Page =
+  | 'home'
+  | 'courses'
+  | 'landing-communication'
+  | 'lead-form'
+  | 'article'
   | 'blog'
   // Razorpay Compliance Pages
   | 'privacy-policy'
@@ -52,4 +52,7 @@ export interface BlogPost {
   image: string;
   category: string;
   tags: string[];
+  title_ml?: string;
+  summary_ml?: string;
+  content_ml?: string;
 }
