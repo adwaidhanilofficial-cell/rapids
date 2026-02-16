@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block admin pages
+Disallow: /admin/
+Disallow: /payment/
+Disallow: /thank-you/
+
+# Sitemap location
+Sitemap: https://rapids.in/sitemap.xml
