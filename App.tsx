@@ -68,7 +68,7 @@ export default function App() {
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
               Rapids Training Institutes.<br />
-              Forging Elites in Kunnamkulam, Kerala.<br />
+              Premier Public Speaking Institute in Kunnamkulam, Kerala.<br />
               Reg. Office: C Shape Building, Near Old Bus Stand, 680503.
             </p>
           </div>

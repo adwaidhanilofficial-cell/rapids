@@ -132,7 +132,7 @@ export const LandingCommunication: React.FC = () => {
                                 </div>
                                 <h4 className="font-serif text-2xl text-black border-b border-gray-300 pb-2 px-8 mb-4 inline-block">Your Name</h4>
                                 <p className="text-gray-600 text-xs max-w-xs mx-auto leading-relaxed mb-8">
-                                    Has successfully mastered the Art of Public Speaking at Rapids LXP.
+                                    Has successfully mastered the Art of Public Speaking at Rapids Training Institute.
                                 </p>
                                 <div className="flex justify-between w-full px-4 mt-auto">
                                     <div className="text-center">

@@ -1,4 +1,4 @@
-# Rapids LXP - Executive Training Platform
+# Rapids Training Institute - Executive Training Platform
 
 This is a premium executive training platform built with React, Tailwind CSS, and Framer Motion.
 
