@@ -28,7 +28,7 @@ export const Blog: React.FC = () => {
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {BLOG_POSTS.map((post) => (
+                    {[...BLOG_POSTS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map((post) => (
                         <div
                             key={post.id}
                             onClick={() => navigate(`/blog/${post.id}`)}
