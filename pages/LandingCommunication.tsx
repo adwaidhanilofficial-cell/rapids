@@ -344,7 +344,7 @@ export const LandingCommunication: React.FC = () => {
                     <div className="grid md:grid-cols-2 gap-6 max-w-xl mx-auto mb-12">
                         <div className="p-6 bg-primary/10 border border-primary/20 rounded-sm">
                             <span className="block text-xs text-primary font-bold uppercase tracking-widest mb-1">Booking Fee</span>
-                            <span className="block text-3xl font-serif text-white">₹500</span>
+                            <span className="block text-3xl font-serif text-white">₹5 (Test Price)</span>
                         </div>
                         <div className="p-6 bg-white/5 border border-white/10 rounded-sm">
                             <span className="block text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Pay Later</span>
