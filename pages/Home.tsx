@@ -110,7 +110,7 @@ export const Home: React.FC = () => {
                         <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="flex flex-col sm:flex-row gap-8">
                             <button
                                 onClick={() => navigate('/communication-skills')}
-                                className="btn-gold-masterclass relative px-10 py-5 overflow-hidden border border-primary/40 rounded-sm transition-all duration-300 hover:border-primary group"
+                                className="view-masterclass-btn relative px-10 py-5 overflow-hidden border border-primary/40 rounded-sm transition-all duration-300 hover:border-primary group"
                             >
                                 <span className="relative z-10 flex items-center gap-3 font-serif font-bold tracking-[0.2em] text-xs uppercase">
                                     View Masterclass <Icon name="arrow_forward" size="sm" />

@@ -19,41 +19,45 @@
         box-shadow:
             0 0 5px #c9a84c,
             0 0 10px #c9a84c,
-            0 0 20px #c9a84c;
+            0 0 20px #c9a84c,
+            0 0 40px #b8860b;
     }
 
     50% {
         box-shadow:
             0 0 10px #ffd700,
             0 0 20px #ffd700,
-            0 0 40px #c9a84c;
+            0 0 40px #ffd700,
+            0 0 80px #c9a84c;
     }
 }
 
-.btn-gold-masterclass {
+/* ONLY VIEW MASTERCLASS BUTTON */
+.view-masterclass-btn {
     background: linear-gradient(105deg,
             #8B6914 0%,
             #c9a84c 20%,
             #ffd700 35%,
-            #ffe566 40%,
+            #ffe566 45%,
             #ffffff 50%,
-            #ffe566 60%,
+            #ffe566 55%,
             #ffd700 65%,
             #c9a84c 80%,
             #8B6914 100%);
     background-size: 200% auto;
     color: #1a0a00 !important;
     font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     border-radius: 4px;
-    /* Matching existing button shape */
     border: 1px solid #c9a84c;
+    padding: 14px 32px;
     animation: goldShine 3s linear infinite,
         goldGlow 2s ease-in-out infinite;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.btn-gold-masterclass:hover {
+.view-masterclass-btn:hover {
     transform: scale(1.03);
-    animation: goldShine 1.5s linear infinite,
-        goldGlow 1s ease-in-out infinite;
 }
