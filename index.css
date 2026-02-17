@@ -1,0 +1,59 @@
+/* ============================================
+   GOLD ANIMATION - MASTERCLASS BUTTON ONLY
+   ============================================ */
+
+@keyframes goldShine {
+    0% {
+        background-position: -200% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes goldGlow {
+
+    0%,
+    100% {
+        box-shadow:
+            0 0 5px #c9a84c,
+            0 0 10px #c9a84c,
+            0 0 20px #c9a84c;
+    }
+
+    50% {
+        box-shadow:
+            0 0 10px #ffd700,
+            0 0 20px #ffd700,
+            0 0 40px #c9a84c;
+    }
+}
+
+.btn-gold-masterclass {
+    background: linear-gradient(105deg,
+            #8B6914 0%,
+            #c9a84c 20%,
+            #ffd700 35%,
+            #ffe566 40%,
+            #ffffff 50%,
+            #ffe566 60%,
+            #ffd700 65%,
+            #c9a84c 80%,
+            #8B6914 100%);
+    background-size: 200% auto;
+    color: #1a0a00 !important;
+    font-weight: 700;
+    border-radius: 4px;
+    /* Matching existing button shape */
+    border: 1px solid #c9a84c;
+    animation: goldShine 3s linear infinite,
+        goldGlow 2s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.btn-gold-masterclass:hover {
+    transform: scale(1.03);
+    animation: goldShine 1.5s linear infinite,
+        goldGlow 1s ease-in-out infinite;
+}
