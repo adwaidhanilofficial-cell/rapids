@@ -54,7 +54,7 @@ export const LeadForm: React.FC = () => {
 
             // 3. Prepare Razorpay Options with the "Secret Note"
             const options = {
-                key: "YOUR_RAZORPAY_KEY_ID",
+                key: "rzp_test_SHGWZneMiJWtdn",
                 amount: 500 * 100, // ₹500 in paise
                 currency: "INR",
                 name: "Rapids Training",
