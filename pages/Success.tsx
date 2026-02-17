@@ -51,173 +51,48 @@ export function Success() {
         // You could fetch existing data here if needed, but usually it's empty for new leads
     }, []);
 
-    const generatePDF = () => {
-        const doc = new jsPDF({
-            orientation: 'portrait', // Changed to portrait for a ticket feel, or keep landscape if preferred. Reference looked somewhat square/portrait.
-            unit: 'mm',
-            format: 'a4' // A4 Page
-            // Note: For a "ticket", we'll draw a box on the A4 page.
-        });
+    const generatePDF = async () => {
+        const input = document.getElementById('receipt-template');
+        if (!input) {
+            console.error("Receipt template not found");
+            return;
+        }
 
-        // --- CONFIG ---
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const centerX = pageWidth / 2;
+        try {
+            const canvas = await import('html2canvas').then(m => m.default(input, {
+                scale: 2, // Higher scale for better quality
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            }));
 
-        // Ticket Dimensions
-        const ticketWidth = 180;
-        const ticketHeight = 220; // Expanded to fit content
-        const startX = (pageWidth - ticketWidth) / 2;
-        const startY = 20;
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
 
-        // --- 1. Background & Border (Clean White Box) ---
-        doc.setFillColor(255, 255, 255); // White background
-        doc.setDrawColor(200, 200, 200); // Light Grey Border
-        doc.setLineWidth(0.5);
-        doc.roundedRect(startX, startY, ticketWidth, ticketHeight, 3, 3, 'FD');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-        // --- 2. Header (Dark Bar) ---
-        doc.setFillColor(30, 30, 30); // Dark grey/black
-        doc.rect(startX, startY, ticketWidth, 20, 'F');
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`${name || 'Rapids'}_Booking_Receipt.pdf`);
 
-        doc.setTextColor(255, 255, 255);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.text("RAPIDS TRAINING INSTITUTE", centerX, startY + 13, { align: "center" });
-
-        // --- 3. Success Message (Green Bar) ---
-        doc.setFillColor(220, 252, 231); // Light greenish bg (Tailwind green-100 approx)
-        doc.setDrawColor(34, 197, 94); // Green border
-        doc.rect(startX + 5, startY + 25, ticketWidth - 10, 15, 'FD');
-
-        doc.setTextColor(22, 163, 74); // Darker green text
-        doc.setFontSize(12);
-        doc.text("Booking Confirmed!", centerX, startY + 36, { align: "center" });
-
-        // --- 4. Split Layout (Line Separator) ---
-        // Vertical line logic or just visually distinct areas
-
-        // --- Left Side Details (Y: 50+) ---
-        let currentY = startY + 55;
-        const leftMargin = startX + 15;
-        const valueX = startX + 15; // Aligned left
-
-        // Movie/Event Name
-        doc.setTextColor(0, 0, 0); // Black
-        doc.setFontSize(16);
-        doc.setFont("helvetica", "bold");
-        doc.text("Executive Communication", leftMargin, currentY);
-        currentY += 8;
-        doc.text("Masterclass", leftMargin, currentY);
-        currentY += 15;
-
-        // Details Block
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100); // Label Color
-        doc.setFont("helvetica", "normal");
-
-        // Function to look like: "Location: ......"
-        const addDetail = (label: string, value: string, color: string = "#000000") => {
-            doc.setFont("helvetica", "normal");
-            doc.setTextColor(100, 100, 100);
-            doc.text(label, leftMargin, currentY);
-
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(color);
-            doc.text(value, leftMargin, currentY + 5);
-            currentY += 15;
-        };
-
-        const today = new Date();
-        const dateString = `${today.getDate()} ${today.toLocaleString('default', { month: 'short' })} ${today.getFullYear()}`;
-        const timeString = "08:00 PM"; // Default or dynamic
-
-        addDetail("Location", `${city}, ${district} (Kerala)`);
-        addDetail("Date & Time", `${dateString} | ${timeString}`);
-        addDetail("Payment Mode", "UPI / Razorpay");
-
-        // Financials
-        // 'Booking Fee Paid' ..... ₹500 (Green text)
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100, 100, 100);
-        doc.text("Booking Fee Paid", leftMargin, currentY);
-        doc.setTextColor(22, 163, 74); // Green
-        doc.setFont("helvetica", "bold");
-        doc.text("Rs. 500.00", pageWidth / 2, currentY, { align: "right" }); // Aligning to center-ish split
-        currentY += 10;
-
-        // 'Balance Due at Venue' ..... ₹5,000 (Red text)
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(100, 100, 100);
-        doc.text("Balance Due at Venue", leftMargin, currentY);
-        doc.setTextColor(220, 38, 38); // Red
-        doc.setFont("helvetica", "bold");
-        doc.text("Rs. 5,000.00", pageWidth / 2, currentY, { align: "right" });
-        currentY += 10;
-
-
-        // --- Right Side (QR Code Section) ---
-        // We'll place this nicely on the right
-        const qrSize = 60;
-        const qrX = startX + ticketWidth - qrSize - 15;
-        const qrY = startY + 50;
-
-        // Draw Box for QR
-        doc.setDrawColor(200, 200, 200);
-        doc.rect(qrX, qrY, qrSize, qrSize);
-
-        // Try to add image if it exists in DOM or load it. 
-        // For reliability in this generated script, we'll try to add the image if we can, 
-        // implies we need the base64 or URL. Since I can't easily 'import' the png here without setup,
-        // I will use a text placeholder if image fails, but ideally:
-        // doc.addImage(imgData, 'PNG', qrX, qrY, qrSize, qrSize);
-
-        doc.setFontSize(8);
-        doc.setTextColor(150, 150, 150);
-        doc.text("Scan to Rate Us on Google", qrX + (qrSize / 2), qrY + qrSize + 5, { align: "center" });
-
-        // Booking ID
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-        doc.text("BOOKING ID", qrX + (qrSize / 2), qrY + qrSize + 15, { align: "center" });
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text(paymentId || "PAY-12345", qrX + (qrSize / 2), qrY + qrSize + 22, { align: "center" });
-
-
-        // --- 5. Footer (Map & Support) ---
-        const footerY = startY + ticketHeight - 30;
-        doc.setDrawColor(230, 230, 230);
-        doc.line(startX + 10, footerY - 5, startX + ticketWidth - 10, footerY - 5);
-
-        doc.setFontSize(10);
-        doc.setTextColor(50, 50, 50);
-        doc.setFont("helvetica", "bold");
-
-        // Center aligned footer text
-        doc.text("View Office Location:", centerX, footerY + 5, { align: "center" });
-        doc.setTextColor(37, 99, 235); // Blue link color
-        doc.text("https://maps.app.goo.gl/epYCfpf6yBC1BkY8A", centerX, footerY + 12, { align: "center" });
-
-        doc.setTextColor(50, 50, 50);
-        doc.text("Support: +91 8547636465", centerX, footerY + 20, { align: "center" });
-
-        // --- Save ---
-        doc.save(`${name}_Booking_Receipt.pdf`);
+        } catch (err) {
+            console.error("Error generating PDF:", err);
+            setError("Failed to generate receipt. Please try again.");
+        }
     };
 
     const handleDownloadClick = () => {
         // PROFILE TRAP LOGIC
         if (!city.trim() || !district.trim()) {
-            // 1. Show Error/Warning
             setValidationError("Please complete your profile to download the receipt.");
-
-            // 2. Scroll to form
             profileFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
             return;
         }
-
-        // 3. Generate if valid
         generatePDF();
     };
 
@@ -226,7 +101,6 @@ export function Success() {
         setError(null);
         setValidationError(null);
 
-        // Basic validation
         if (!city.trim() || !district.trim()) {
             setError("City and District are required.");
             return;
@@ -235,7 +109,7 @@ export function Success() {
         setLoading(true);
         const { error: updateError } = await supabase
             .from('leads')
-            .update({ city, district, email }) // Update all fields
+            .update({ city, district, email })
             .eq('id', leadId);
 
         if (updateError) {
@@ -243,15 +117,120 @@ export function Success() {
             setError("Failed to update profile. Please try again.");
         } else {
             setUpdated(true);
-            // Optionally auto-download after save?
-            // generatePDF(); 
         }
         setLoading(false);
     };
 
+    // Current Date/Time for Receipt
+    const now = new Date();
+    const formattedDate = `${now.getDate()} ${now.toLocaleString('default', { month: 'short' })} ${now.getFullYear()}`;
+    const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
     return (
         <div className="min-h-screen bg-black text-gray-200 pt-28 pb-12">
             <div className="max-w-4xl mx-auto px-4 pb-20 space-y-8">
+
+                {/* --- HIDDEN RECEIPT TEMPLATE --- */}
+                <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+                    <div id="receipt-template" className="w-[800px] bg-white text-black font-sans border border-gray-300 relative">
+
+                        {/* 1. Header */}
+                        <div className="bg-[#1a1a2e] text-white p-6 flex justify-between items-center h-24">
+                            <h1 className="text-2xl font-bold tracking-wider">RAPIDS TRAINING INSTITUTE</h1>
+                            <div className="flex items-center gap-2 text-sm text-gray-300">
+                                <Phone className="w-4 h-4" />
+                                <span>Support: +91 8547636465</span>
+                            </div>
+                        </div>
+
+                        {/* 2. Success Banner */}
+                        <div className="bg-[#dcfce7] border-y border-[#22c55e] p-4 flex items-center justify-center gap-3">
+                            <div className="bg-[#22c55e] rounded-full p-1">
+                                <CheckCircle className="w-6 h-6 text-white" />
+                            </div>
+                            <h2 className="text-[#15803d] text-xl font-bold">Booking Confirmed!</h2>
+                        </div>
+
+                        {/* 3. Main Layout */}
+                        <div className="flex p-8 gap-8 min-h-[400px]">
+
+                            {/* LEFT SIDE (Details) */}
+                            <div className="flex-1 space-y-6 border-r border-dashed border-gray-300 pr-8">
+
+                                {/* Event Info */}
+                                <div>
+                                    <p className="text-gray-500 text-sm uppercase tracking-wider mb-1">Event</p>
+                                    <h3 className="text-2xl font-extrabold text-[#1a1a2e] leading-tight">Executive Communication Masterclass</h3>
+                                </div>
+
+                                {/* User Details */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <p className="text-gray-500 text-xs uppercase mb-1">Name</p>
+                                        <p className="text-lg font-bold">{name}</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-gray-500 text-xs uppercase mb-1">Location</p>
+                                            <p className="text-base font-bold">{city}, {district}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 text-xs uppercase mb-1">Date & Time</p>
+                                            <p className="text-base font-bold">{formattedDate} | {formattedTime}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Price Box */}
+                                <div className="mt-6 bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600 font-medium">Booking Fee Paid</span>
+                                        <span className="text-[#16a34a] font-bold text-lg">Rs. 500</span>
+                                    </div>
+                                    <div className="w-full h-px bg-gray-200"></div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600 font-medium">Balance Due at Venue</span>
+                                        <span className="text-[#dc2626] font-bold text-lg">Rs. 5,000</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* RIGHT SIDE (QR & ID) */}
+                            <div className="w-48 flex flex-col items-center justify-center space-y-6 pt-4">
+                                <div className="relative group">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-red-600 rounded-xl opacity-20 blur"></div>
+                                    <div className="relative bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+                                        <img
+                                            src="/google-review-qr.png"
+                                            alt="QR Code"
+                                            className="w-[100px] h-[100px] object-contain" // Fixed width as requested
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                // Optional: Show fallback text if image fails
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="text-center w-full">
+                                    <p className="text-gray-400 text-[10px] uppercase tracking-widest mb-1">Booking ID</p>
+                                    <p className="text-xl font-bold text-[#1a1a2e] break-all">{paymentId || '---'}</p>
+                                </div>
+
+                                <div className="text-center">
+                                    <p className="text-[10px] text-gray-400">Scan to allow us to serve you better</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. Footer */}
+                        <div className="bg-gray-50 p-4 text-center border-t border-gray-200 text-xs text-gray-500">
+                            <p>Thank you for choosing Rapids Training Institute. Please present this receipt at the venue.</p>
+                            <p className="mt-1 text-gray-400">Generated on {formattedDate} at {formattedTime}</p>
+                        </div>
+                    </div>
+                </div>
 
                 {/* CERTIFICATE CARD */}
                 <div className="bg-[#0a0a0a] border border-[#D4AF37]/30 rounded-2xl p-8 text-center relative overflow-hidden">
