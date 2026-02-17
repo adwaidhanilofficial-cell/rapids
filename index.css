@@ -15,33 +15,32 @@
 
 /* ONLY VIEW MASTERCLASS BUTTON */
 .view-masterclass-btn {
-    /* Metallic Gold Gradient: Premium Gold Settings */
+    /* Metallic Gold Gradient: Bronze, Dull Gold, Ivory White */
     background: linear-gradient(110deg,
-            #a88332 0%,
-            #d4af37 20%,
-            #fffac2 45%,
-            #fffac2 55%,
-            #d4af37 80%,
-            #a88332 100%);
+            #8E793E 0%,
+            #C3A343 25%,
+            #FFFFF0 50%,
+            #C3A343 75%,
+            #8E793E 100%);
     background-size: 200% auto;
     color: #1a1a1a !important;
-    /* Dark text for contrast */
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     border-radius: 4px;
-    /* Subtle border matching the dark gold */
-    border: 1px solid #a88332;
+    border: none;
+    /* Removed border as it wasn't specified but often interferes with metallic looks, or keep generic? User didn't specify border removal but did say "Rewrite". I'll keep it simple/clean or maybe the prompt implies cleaner edges. The prompt said "The reference image has sharp edges". I'll remove the border to be safe or maybe keep it but subtle. The prompt didn't explicitly say remove border, but "matches the 'Secure Seat' reference exactly". I will remove the specific border color since I'm changing the palette. */
     padding: 14px 32px;
     /* Slow, elegant animation (8s) */
     animation: goldShine 8s linear infinite;
-    /* Subtle, natural shadow (no neon glow) */
-    box-shadow: 0px 5px 15px rgba(168, 131, 50, 0.4);
+    /* No glowing aura, just depth */
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .view-masterclass-btn:hover {
     transform: scale(1.03);
-    box-shadow: 0px 8px 20px rgba(168, 131, 50, 0.5);
+    /* Simple shadow on hover, no glow */
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4);
 }
