@@ -54,21 +54,45 @@ export const LeadForm: React.FC = () => {
 
             // 3. Prepare Razorpay Options with the "Secret Note"
             const options = {
-                key: "rzp_test_SHGWZneMiJWtdn",
+                key: "rzp_live_SHHmRMqeg5U0Ci", // LIVE KEY
                 amount: 500 * 100, // ₹500 in paise
                 currency: "INR",
                 name: "Rapids Training",
                 description: "Seat Booking Fee",
                 image: "https://your-logo-url.com/logo.png",
-                handler: function (response: any) {
-                    navigate('/success', {
-                        state: {
-                            name: name,
-                            phone: phone,
-                            leadId: newLeadId,
-                            paymentId: response.razorpay_payment_id
+                handler: async function (response: any) {
+                    try {
+                        const paymentId = response.razorpay_payment_id;
+
+                        // CRITICAL: Update Supabase with 'paid' status AND payment_id
+                        const { error: updateError } = await supabase
+                            .from('leads')
+                            .update({
+                                status: 'paid',
+                                payment_id: paymentId
+                            })
+                            .eq('id', newLeadId);
+
+                        if (updateError) {
+                            console.error("Error updating payment status:", updateError);
+                            alert("Payment successful but failed to update status. Please contact support.");
+                            return;
                         }
-                    });
+
+                        // ONLY redirect after successful update
+                        navigate('/success', {
+                            state: {
+                                name: name,
+                                phone: phone,
+                                leadId: newLeadId,
+                                paymentId: paymentId
+                            }
+                        });
+
+                    } catch (err) {
+                        console.error("Payment handler error:", err);
+                        alert("An error occurred after payment. Please contact support.");
+                    }
                 },
                 prefill: {
                     name: name,

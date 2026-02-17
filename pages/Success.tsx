@@ -35,6 +35,7 @@ export function Success() {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [updated, setUpdated] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const downloadCertificate = () => {
         const doc = new jsPDF({
@@ -85,9 +86,26 @@ export function Success() {
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+
+        // Validation: Check for '@' and '.com'
+        if (!email.includes('@') || !email.includes('.com')) {
+            setError('Please enter a valid email');
+            return;
+        }
+
         setLoading(true);
-        await supabase.from('leads').update({ city, district, email }).eq('id', leadId);
-        setUpdated(true);
+        const { error: updateError } = await supabase
+            .from('leads')
+            .update({ city, district, email })
+            .eq('id', leadId);
+
+        if (updateError) {
+            console.error("Error updating profile:", updateError);
+            setError("Failed to update profile. Please try again.");
+        } else {
+            setUpdated(true);
+        }
         setLoading(false);
     };
 
@@ -137,25 +155,37 @@ export function Success() {
                             <p className="text-green-400 font-semibold">Profile Updated Successfully!</p>
                         </div>
                     ) : (
-                        <form onSubmit={handleUpdateProfile} className="grid md:grid-cols-3 gap-4">
-                            <input
-                                placeholder="City"
-                                className="bg-black border border-white/20 p-3 rounded text-white focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all"
-                                value={city}
-                                onChange={e => setCity(e.target.value)}
-                            />
-                            <input
-                                placeholder="District"
-                                className="bg-black border border-white/20 p-3 rounded text-white focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all"
-                                value={district}
-                                onChange={e => setDistrict(e.target.value)}
-                            />
+                        <form onSubmit={handleUpdateProfile} className="space-y-4">
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <input
+                                    placeholder="City"
+                                    className="bg-black border border-white/20 p-3 rounded text-white focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all"
+                                    value={city}
+                                    onChange={e => setCity(e.target.value)}
+                                />
+                                <input
+                                    placeholder="District"
+                                    className="bg-black border border-white/20 p-3 rounded text-white focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all"
+                                    value={district}
+                                    onChange={e => setDistrict(e.target.value)}
+                                />
+                                <input
+                                    placeholder="Email Address"
+                                    type="email"
+                                    className="bg-black border border-white/20 p-3 rounded text-white focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 outline-none transition-all"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                />
+                            </div>
+
+                            {error && <p className="text-red-500 text-sm">{error}</p>}
+
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="bg-white text-black font-bold p-3 rounded hover:bg-gray-200 transition-all disabled:opacity-50"
+                                className="w-full bg-white text-black font-bold p-3 rounded hover:bg-gray-200 transition-all disabled:opacity-50"
                             >
-                                {loading ? 'Saving...' : 'Update'}
+                                {loading ? 'Saving...' : 'Update Profile'}
                             </button>
                         </form>
                     )}
