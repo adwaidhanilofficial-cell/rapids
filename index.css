@@ -2,6 +2,7 @@
    GOLD ANIMATION - MASTERCLASS BUTTON ONLY
    ============================================ */
 
+/* Reduced speed for elegance (8s) */
 @keyframes goldShine {
     0% {
         background-position: -200% center;
@@ -12,52 +13,35 @@
     }
 }
 
-@keyframes goldGlow {
-
-    0%,
-    100% {
-        box-shadow:
-            0 0 5px #c9a84c,
-            0 0 10px #c9a84c,
-            0 0 20px #c9a84c,
-            0 0 40px #b8860b;
-    }
-
-    50% {
-        box-shadow:
-            0 0 10px #ffd700,
-            0 0 20px #ffd700,
-            0 0 40px #ffd700,
-            0 0 80px #c9a84c;
-    }
-}
-
 /* ONLY VIEW MASTERCLASS BUTTON */
 .view-masterclass-btn {
-    background: linear-gradient(105deg,
-            #8B6914 0%,
-            #c9a84c 20%,
-            #ffd700 35%,
-            #ffe566 45%,
-            #ffffff 50%,
-            #ffe566 55%,
-            #ffd700 65%,
-            #c9a84c 80%,
-            #8B6914 100%);
+    /* Metallic Gold Gradient: Premium Gold Settings */
+    background: linear-gradient(110deg,
+            #a88332 0%,
+            #d4af37 20%,
+            #fffac2 45%,
+            #fffac2 55%,
+            #d4af37 80%,
+            #a88332 100%);
     background-size: 200% auto;
-    color: #1a0a00 !important;
+    color: #1a1a1a !important;
+    /* Dark text for contrast */
     font-weight: 700;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     border-radius: 4px;
-    border: 1px solid #c9a84c;
+    /* Subtle border matching the dark gold */
+    border: 1px solid #a88332;
     padding: 14px 32px;
-    animation: goldShine 3s linear infinite,
-        goldGlow 2s ease-in-out infinite;
+    /* Slow, elegant animation (8s) */
+    animation: goldShine 8s linear infinite;
+    /* Subtle, natural shadow (no neon glow) */
+    box-shadow: 0px 5px 15px rgba(168, 131, 50, 0.4);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .view-masterclass-btn:hover {
     transform: scale(1.03);
+    box-shadow: 0px 8px 20px rgba(168, 131, 50, 0.5);
 }
