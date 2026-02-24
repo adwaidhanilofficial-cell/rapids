@@ -86,14 +86,14 @@ export function Success() {
         }
     };
 
-    const handleDownloadClick = () => {
+    const handleDownloadClick = async () => {
         // PROFILE TRAP LOGIC
         if (!city.trim() || !district.trim()) {
             setValidationError("Please complete your profile to download the receipt.");
             profileFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
-        generatePDF();
+        await generatePDF();
     };
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
