@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
-import { useLanguage } from '../src/context/LanguageContext';
 
 declare global {
     interface Window {
@@ -12,7 +11,6 @@ declare global {
 
 export const LeadForm: React.FC = () => {
     const navigate = useNavigate();
-    const { language } = useLanguage();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -129,7 +127,7 @@ export const LeadForm: React.FC = () => {
             <main className="relative z-10 w-full max-w-5xl dark:bg-[#050505] bg-white md:border dark:md:border-white/10 md:border-black/5 md:rounded-[3rem] shadow-2xl flex flex-col md:flex-row overflow-hidden min-h-screen md:min-h-[650px] transition-colors duration-500">
 
                 {/* HERO SECTION / IMAGE */}
-                <div className="relative w-full md:w-1/2 h-[50vh] md:h-auto shrink-0 overflow-hidden group">
+                <div className="relative w-full md:w-1/2 h-[220px] md:h-auto shrink-0 overflow-hidden group">
                     <img
                         src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=2670&auto=format&fit=crop"
                         alt="Communication Masterclass"
@@ -140,7 +138,7 @@ export const LeadForm: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-transparent md:bg-gradient-to-r md:from-transparent md:via-black/20 md:to-[#050505]"></div>
 
                     {/* Content Overlay */}
-                    <div className="absolute top-24 left-6 md:top-12 md:left-12 right-6 z-10">
+                    <div className="absolute top-6 left-6 md:top-12 md:left-12 right-6 z-10">
                         <div className="inline-block px-4 py-1.5 bg-primary text-black text-[11px] font-bold uppercase tracking-widest mb-6 shadow-lg rounded-full">
                             Premium Access
                         </div>
@@ -154,24 +152,14 @@ export const LeadForm: React.FC = () => {
                 </div>
 
                 {/* FORM SECTION */}
-                <div className="relative w-full md:w-1/2 flex flex-col justify-center px-6 py-12 md:p-16 dark:bg-[#050505] bg-white -mt-10 md:mt-0 rounded-t-[2.5rem] md:rounded-none z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] md:shadow-none transition-colors duration-500">
+                <div className="relative w-full md:w-1/2 flex flex-col justify-center px-6 py-12 md:p-16 dark:bg-[#050505] bg-white -mt-6 md:mt-0 rounded-t-[2.5rem] md:rounded-none z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.8)] md:shadow-none transition-colors duration-500">
 
                     <div className="mb-10 mt-2 md:mt-0">
                         <h1 className="font-serif text-4xl font-bold tracking-[0.15em] dark:text-white text-gray-900 mb-2 transition-colors">
                             RAPIDS
                         </h1>
                         <p className="text-[11px] tracking-[0.3em] text-primary font-bold uppercase">
-                            <AnimatePresence mode="wait">
-                                <motion.span
-                                    key={`seat-label-${language}`}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    {language === 'ml' ? 'സീറ്റ് ഉറപ്പാക്കൂ' : 'Secure Your Seat'}
-                                </motion.span>
-                            </AnimatePresence>
+                            Secure Your Seat
                         </p>
                     </div>
 
@@ -207,7 +195,7 @@ export const LeadForm: React.FC = () => {
                         {error && <p className="text-red-500 text-xs tracking-wide bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center">{error}</p>}
 
                         <button className="w-full mt-6 py-5 bg-gold-platinum text-black font-serif font-bold tracking-[0.2em] text-sm uppercase hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-[0_10px_30px_rgba(212,175,55,0.2)] rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed" type="submit" disabled={loading}>
-                            {loading ? 'Processing...' : (language === 'ml' ? 'സീറ്റ് ഉറപ്പാക്കൂ' : 'Secure Your Seat')}
+                            {loading ? 'Processing...' : 'Secure Your Seat'}
                         </button>
                     </form>
 

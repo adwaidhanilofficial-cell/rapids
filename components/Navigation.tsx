@@ -16,8 +16,15 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { language, toggleLanguage } = useLanguage();
+  const { language, toggleLanguage, resetToEnglish } = useLanguage();
   const isBlogPage = location.pathname.includes('/blog') || location.pathname.includes('/article');
+
+  // Reset language to English whenever the user leaves blog/article pages
+  useEffect(() => {
+    if (!isBlogPage) {
+      resetToEnglish();
+    }
+  }, [isBlogPage]);
 
   const [isDark, setIsDark] = useState(() => {
     if (typeof document !== 'undefined') {

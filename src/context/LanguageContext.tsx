@@ -5,6 +5,7 @@ type Language = 'en' | 'ml';
 interface LanguageContextType {
     language: Language;
     toggleLanguage: () => void;
+    resetToEnglish: () => void;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -17,8 +18,13 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
         setLanguage((prev) => (prev === 'en' ? 'ml' : 'en'));
     };
 
+    // Explicitly reset to English — called when navigating away from blog pages
+    const resetToEnglish = () => {
+        setLanguage('en');
+    };
+
     return (
-        <LanguageContext.Provider value={{ language, toggleLanguage }}>
+        <LanguageContext.Provider value={{ language, toggleLanguage, resetToEnglish }}>
             {children}
         </LanguageContext.Provider>
     );
