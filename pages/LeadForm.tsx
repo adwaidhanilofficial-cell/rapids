@@ -59,20 +59,64 @@ export const LeadForm: React.FC = () => {
                 .eq('phone', phoneWith91)
                 .maybeSingle();
 
+            let leadId: string;
             if (existing) {
                 await supabase
                     .from('leads')
                     .update({ name: name.trim(), source: 'whatsapp+website' })
                     .eq('id', existing.id);
+                leadId = existing.id;
             } else {
-                await supabase
+                const { data: newLead } = await supabase
                     .from('leads')
-                    .insert([{ name: name.trim(), phone: phoneWith91, source: 'website' }]);
+                    .insert([{ name: name.trim(), phone: phoneWith91, source: 'website' }])
+                    .select()
+                    .single();
+                leadId = newLead?.id || '';
             }
 
-            // Redirect to Razorpay Payment Link with prefilled phone
-            window.location.href = `https://rzp.io/rzp/VkDCv2sO`;
+            // Launch Razorpay Checkout Dashboard (with UPI apps: GPay, PhonePe, etc.)
+            const options = {
+                key: "rzp_live_SHHmRMqeg5U0Ci",
+                amount: 500, // ₹5 in paise (change to 49900 for ₹499 in production)
+                currency: "INR",
+                name: "Rapids Training",
+                description: "Seat Booking Fee",
+                image: "https://bovrapqqwxwemjfpqkqr.supabase.co/storage/v1/object/public/rapids-images/pitch.png",
+                handler: async function (response: any) {
+                    const paymentId = response.razorpay_payment_id;
+                    // Update Supabase (webhook is backup)
+                    try {
+                        await supabase
+                            .from('leads')
+                            .update({ status: 'paid', payment_id: paymentId, funnel_stage: 'paid' })
+                            .eq('id', leadId);
+                    } catch (e) {
+                        console.warn("Browser update failed - webhook will handle it:", e);
+                    }
+                    navigate('/success', {
+                        state: { name, phone: phoneWith91, leadId, paymentId }
+                    });
+                },
+                prefill: {
+                    name: name.trim(),
+                    contact: phoneWith91,
+                },
+                notes: {
+                    lead_id: leadId,
+                    phone: phoneWith91,
+                },
+                theme: {
+                    color: "#D4AF37",
+                },
+            };
 
+            const rzp = new (window as any).Razorpay(options);
+            rzp.on('payment.failed', function () {
+                setError('Payment failed. Please try again.');
+                setLoading(false);
+            });
+            rzp.open();
         } catch (err: any) {
             console.error('Error:', err);
             setError(err.message || 'Failed to save details. Please try again.');
