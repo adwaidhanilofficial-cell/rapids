@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
 
@@ -11,10 +11,28 @@ declare global {
 
 export const LeadForm: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [phoneLocked, setPhoneLocked] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+
+    // Pre-fill from URL params (from WhatsApp link)
+    useEffect(() => {
+        const urlPhone = searchParams.get('phone') || '';
+        const urlName = searchParams.get('name') || '';
+        if (urlPhone) {
+            // Strip 91 prefix for display (form shows +91 already)
+            let displayPhone = urlPhone.replace(/\D/g, '');
+            if (displayPhone.startsWith('91') && displayPhone.length > 10) {
+                displayPhone = displayPhone.substring(2);
+            }
+            setPhone(displayPhone);
+            setPhoneLocked(true); // Lock the phone field
+        }
+        if (urlName) setName(decodeURIComponent(urlName));
+    }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,94 +40,42 @@ export const LeadForm: React.FC = () => {
         setError(null);
 
         try {
-            // 1. Validate inputs
             if (!name.trim() || !phone.trim()) {
                 throw new Error('Please fill in all fields');
             }
-            const formattedPhone = phone.replace(/\D/g, '');
+            let formattedPhone = phone.replace(/\D/g, '');
+            if (formattedPhone.startsWith('91') && formattedPhone.length > 10) {
+                formattedPhone = formattedPhone.substring(2);
+            }
             if (formattedPhone.length < 10) {
-                throw new Error('Please enter a valid phone number');
+                throw new Error('Please enter a valid 10-digit phone number');
+            }
+            const phoneWith91 = '91' + formattedPhone;
+
+            // Check if lead exists (from WhatsApp flow) → UPDATE, don't create duplicate
+            const { data: existing } = await supabase
+                .from('leads')
+                .select('id')
+                .eq('phone', phoneWith91)
+                .maybeSingle();
+
+            if (existing) {
+                await supabase
+                    .from('leads')
+                    .update({ name: name.trim(), source: 'whatsapp+website' })
+                    .eq('id', existing.id);
+            } else {
+                await supabase
+                    .from('leads')
+                    .insert([{ name: name.trim(), phone: phoneWith91, source: 'website' }]);
             }
 
-            // 2. Insert into Supabase AND return the ID (.select() is crucial here)
-            const { data, error: dbError } = await supabase
-                .from('leads')
-                .insert([
-                    {
-                        name: name.trim(),
-                        phone: formattedPhone,
-                        source: 'website',
-                    },
-                ])
-                .select()
-                .single();
+            // Redirect to Razorpay Payment Link with prefilled phone
+            window.location.href = `https://rzp.io/rzp/VkDCv2sO`;
 
-            if (dbError) throw dbError;
-            if (!data) throw new Error('No data returned from database');
-
-            const newLeadId = data.id;
-
-            // 3. Prepare Razorpay Options with the "Secret Note"
-            const options = {
-                key: "rzp_live_SHHmRMqeg5U0Ci", // LIVE KEY
-                amount: 500, // ₹5 in paise
-                currency: "INR",
-                name: "Rapids Training",
-                description: "Seat Booking Fee",
-                image: "https://your-logo-url.com/logo.png",
-                handler: async function (response: any) {
-                    try {
-                        const paymentId = response.razorpay_payment_id;
-
-                        // CRITICAL: Update Supabase with 'paid' status AND payment_id
-                        const { error: updateError } = await supabase
-                            .from('leads')
-                            .update({
-                                status: 'paid',
-                                payment_id: paymentId
-                            })
-                            .eq('id', newLeadId);
-
-                        if (updateError) {
-                            console.error("Error updating payment status:", updateError);
-                            alert("Payment successful but failed to update status. Please contact support.");
-                            return;
-                        }
-
-                        // ONLY redirect after successful update
-                        navigate('/success', {
-                            state: {
-                                name: name,
-                                phone: phone,
-                                leadId: newLeadId,
-                                paymentId: paymentId
-                            }
-                        });
-
-                    } catch (err) {
-                        console.error("Payment handler error:", err);
-                        alert("An error occurred after payment. Please contact support.");
-                    }
-                },
-                prefill: {
-                    name: name,
-                    contact: formattedPhone,
-                },
-                notes: {
-                    lead_id: newLeadId,
-                },
-                theme: {
-                    color: "#D4AF37",
-                },
-            };
-
-            // 4. Launch Razorpay
-            const rzp = new (window as any).Razorpay(options);
-            rzp.open();
         } catch (err: any) {
-            console.error('Error inserting lead:', err);
+            console.error('Error:', err);
             setError(err.message || 'Failed to save details. Please try again.');
-        } finally {
             setLoading(false);
         }
     };
@@ -162,18 +128,19 @@ export const LeadForm: React.FC = () => {
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-4" htmlFor="phone">Phone Number</label>
+                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-4" htmlFor="phone">Phone Number {phoneLocked && <span className="text-green-400">✓ Verified</span>}</label>
                             <div className="flex gap-3">
                                 <div className="flex items-center justify-center px-5 dark:bg-white/5 bg-gray-50 border dark:border-white/5 border-gray-200 rounded-2xl dark:text-gray-400 text-gray-600 text-sm font-bold shadow-inner">
                                     +91
                                 </div>
                                 <input
-                                    className="block w-full px-6 py-5 dark:bg-white/5 bg-gray-50 border dark:border-white/5 border-gray-200 rounded-2xl focus:border-primary/50 focus:bg-white/10 focus:ring-1 focus:ring-primary/50 dark:text-white text-gray-900 placeholder-gray-600 text-base transition-all duration-300 shadow-inner"
+                                    className={`block w-full px-6 py-5 dark:bg-white/5 bg-gray-50 border dark:border-white/5 border-gray-200 rounded-2xl focus:border-primary/50 focus:bg-white/10 focus:ring-1 focus:ring-primary/50 dark:text-white text-gray-900 placeholder-gray-600 text-base transition-all duration-300 shadow-inner ${phoneLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
                                     id="phone"
                                     placeholder="98765 43210"
                                     type="tel"
                                     value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    onChange={(e) => !phoneLocked && setPhone(e.target.value)}
+                                    readOnly={phoneLocked}
                                 />
                             </div>
                         </div>

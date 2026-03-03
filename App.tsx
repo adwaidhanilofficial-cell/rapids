@@ -7,6 +7,7 @@ import { Courses } from './pages/Courses';
 import { LandingCommunication } from './pages/LandingCommunication';
 import { LeadForm } from './pages/LeadForm';
 import { Success } from './pages/Success';
+import { BookRedirect } from './pages/BookRedirect';
 import { Article } from './pages/Article';
 import { Blog } from './pages/Blog';
 import { ContactUs } from './pages/ContactUs';
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/courses" element={<Courses />} />
             <Route path="/communication-skills" element={<LandingCommunication />} />
             <Route path="/lead-form" element={<LeadForm />} />
+            <Route path="/book" element={<BookRedirect />} />
             <Route path="/success" element={<Success />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<Article />} />
