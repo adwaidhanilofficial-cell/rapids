@@ -94,18 +94,21 @@ export const Home: React.FC = () => {
                             </div>
                         </motion.div>
 
-                        <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl dark:text-white text-gray-900 leading-[1.0] mb-8 tracking-tight transition-colors">
+                        <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl dark:text-white text-gray-900 leading-[1.1] mb-4 tracking-tight transition-colors">
                             <motion.div className="overflow-hidden" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } } }}>
-                                <span>Forging</span>
+                                <span>Kerala's Premier</span>
                             </motion.div>
                             <motion.span className="text-platinum block" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut", delay: 0.2 } } }}>
-                                <span>Elites.</span>
+                                <span>Public Speaking &amp;</span>
                             </motion.span>
+                            <motion.div className="overflow-hidden" variants={{ hidden: { y: 100, opacity: 0 }, visible: { y: 0, opacity: 1, transition: { duration: 0.8, ease: "easeOut", delay: 0.35 } } }}>
+                                <span>Communication Training Center</span>
+                            </motion.div>
                         </h1>
 
-                        <motion.p variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="dark:text-gray-400 text-gray-600 text-lg md:text-xl mb-12 leading-relaxed max-w-lg font-light border-l border-primary/30 pl-6 transition-colors">
-                            The only offline training center dedicated to high-performance Communication. We don't just teach; we transform.
-                        </motion.p>
+                        <motion.h2 variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} className="dark:text-gray-400 text-gray-600 text-lg md:text-xl mb-12 leading-relaxed max-w-lg font-light border-l border-primary/30 pl-6 transition-colors">
+                            Helping Students Across Kerala Overcome Stage Fear and Speak with Confidence
+                        </motion.h2>
 
                         <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="flex flex-col sm:flex-row gap-8">
                             <button

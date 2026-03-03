@@ -38,8 +38,7 @@ export const LeadForm: React.FC = () => {
                     {
                         name: name.trim(),
                         phone: formattedPhone,
-                        status: 'pending',
-                        created_at: new Date().toISOString(),
+                        source: 'website',
                     },
                 ])
                 .select()
@@ -135,17 +134,11 @@ export const LeadForm: React.FC = () => {
                     />
 
                     {/* SMART GRADIENT OVERLAY */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-transparent md:bg-gradient-to-r md:from-transparent md:via-black/20 md:to-[#050505]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-black/30 md:bg-gradient-to-r md:from-transparent md:via-black/20 md:to-[#050505]"></div>
 
-                    {/* Content Overlay */}
-                    <div className="absolute top-6 left-6 md:top-12 md:left-12 right-6 z-10">
-                        <div className="inline-block px-4 py-1.5 bg-primary text-black text-[11px] font-bold uppercase tracking-widest mb-6 shadow-lg rounded-full">
-                            Premium Access
-                        </div>
-                        <h2 className="font-serif text-3xl md:text-4xl text-white leading-[1.1] mb-3 drop-shadow-lg uppercase tracking-tight">
-                            Executive <br /> Communication <br /> Masterclass
-                        </h2>
-                        <p className="text-gray-300 text-xs md:text-sm font-medium drop-shadow-md max-w-xs leading-relaxed">
+                    {/* Content Overlay - Bottom subtitle only */}
+                    <div className="absolute bottom-8 left-6 right-6 md:bottom-12 md:left-12 md:right-12 z-10">
+                        <p className="text-white text-sm md:text-base font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] max-w-xs leading-relaxed bg-black/40 backdrop-blur-sm inline-block px-4 py-2 rounded-xl border border-white/10">
                             Join the elite circle of communicators. Limited seats available.
                         </p>
                     </div>

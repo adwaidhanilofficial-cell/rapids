@@ -35,11 +35,8 @@ export function Success() {
     }
 
     const { name, leadId, paymentId, phone } = state;
-    const [city, setCity] = useState('');
-    const [district, setDistrict] = useState('');
-    // Email is optional in the new requirement but city/district is mandatory for the trap
-    // We'll keep email if users want to add it, but focus trap on city/district
     const [email, setEmail] = useState('');
+
 
     const [loading, setLoading] = useState(false);
     const [updated, setUpdated] = useState(false);
@@ -88,8 +85,8 @@ export function Success() {
 
     const handleDownloadClick = async () => {
         // PROFILE TRAP LOGIC
-        if (!city.trim() || !district.trim()) {
-            setValidationError("Please complete your profile to download the receipt.");
+        if (!email.trim()) {
+            setValidationError("Please add your email to download the receipt.");
             profileFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
@@ -101,15 +98,15 @@ export function Success() {
         setError(null);
         setValidationError(null);
 
-        if (!city.trim() || !district.trim()) {
-            setError("City and District are required.");
+        if (!email.trim()) {
+            setError("Email is required.");
             return;
         }
 
         setLoading(true);
         const { error: updateError } = await supabase
             .from('leads')
-            .update({ city, district, email })
+            .update({ email: email.trim() })
             .eq('id', leadId);
 
         if (updateError) {
@@ -170,15 +167,9 @@ export function Success() {
                                         <p className="text-lg font-bold">{name}</p>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-gray-500 text-xs uppercase mb-1">Location</p>
-                                            <p className="text-base font-bold">{city}, {district}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-gray-500 text-xs uppercase mb-1">Date & Time</p>
-                                            <p className="text-base font-bold">{formattedDate} | {formattedTime}</p>
-                                        </div>
+                                    <div>
+                                        <p className="text-gray-500 text-xs uppercase mb-1">Date & Time</p>
+                                        <p className="text-base font-bold">{formattedDate} | {formattedTime}</p>
                                     </div>
                                 </div>
 
@@ -286,7 +277,7 @@ export function Success() {
                 <div ref={profileFormRef} className={`transition-all duration-500 ${validationError ? 'ring-2 ring-red-500 scale-[1.01]' : 'border border-white/10'} bg-neutral-900/50 p-8 rounded-2xl`}>
                     <h3 className="text-2xl font-bold text-white mb-2 font-serif">Complete Your Profile</h3>
                     <p className="text-gray-400 text-sm mb-6">
-                        Please provide your location details to generate your official receipt.
+                        Please add your email to generate your official receipt.
                         <span className="text-red-400 ml-1">* Required</span>
                     </p>
 
@@ -304,37 +295,15 @@ export function Success() {
                         </div>
                     ) : (
                         <form onSubmit={handleUpdateProfile} className="space-y-4">
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">City <span className="text-red-500">*</span></label>
-                                    <input
-                                        placeholder="e.g. Cochin"
-                                        className="w-full bg-black border border-white/20 p-4 rounded-xl text-white focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] outline-none transition-all placeholder:text-gray-700"
-                                        value={city}
-                                        onChange={e => setCity(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">District <span className="text-red-500">*</span></label>
-                                    <input
-                                        placeholder="e.g. Ernakulam"
-                                        className="w-full bg-black border border-white/20 p-4 rounded-xl text-white focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] outline-none transition-all placeholder:text-gray-700"
-                                        value={district}
-                                        onChange={e => setDistrict(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Email <span className="text-gray-600">(Optional)</span></label>
+                                <label className="text-xs font-bold text-gray-500 uppercase ml-1">Email <span className="text-red-500">*</span></label>
                                 <input
                                     placeholder="your@email.com"
                                     type="email"
                                     className="w-full bg-black border border-white/20 p-4 rounded-xl text-white focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] outline-none transition-all placeholder:text-gray-700"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
 
