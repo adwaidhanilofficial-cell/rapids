@@ -85,15 +85,32 @@ export const LeadForm: React.FC = () => {
                 image: "https://bovrapqqwxwemjfpqkqr.supabase.co/storage/v1/object/public/rapids-images/pitch.png",
                 handler: async function (response: any) {
                     const paymentId = response.razorpay_payment_id;
-                    // Update Supabase (webhook is backup)
+                    // 1. Update Supabase
                     try {
                         await supabase
                             .from('leads')
                             .update({ status: 'paid', payment_id: paymentId, funnel_stage: 'paid' })
                             .eq('id', leadId);
                     } catch (e) {
-                        console.warn("Browser update failed - webhook will handle it:", e);
+                        console.warn("Supabase update error (webhook backup):", e);
                     }
+                    // 2. Send WhatsApp confirmation message
+                    try {
+                        await fetch('/api/send-whatsapp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                phone: phoneWith91,
+                                paymentId,
+                                amount: 5,
+                                name: name.trim(),
+                                status: 'paid'
+                            })
+                        });
+                    } catch (e) {
+                        console.warn("WhatsApp send error:", e);
+                    }
+                    // 3. Navigate to success page
                     navigate('/success', {
                         state: { name, phone: phoneWith91, leadId, paymentId }
                     });
@@ -112,7 +129,21 @@ export const LeadForm: React.FC = () => {
             };
 
             const rzp = new (window as any).Razorpay(options);
-            rzp.on('payment.failed', function () {
+            rzp.on('payment.failed', async function () {
+                // Send WhatsApp failed notification
+                try {
+                    await fetch('/api/send-whatsapp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            phone: phoneWith91,
+                            name: name.trim(),
+                            status: 'failed'
+                        })
+                    });
+                } catch (e) {
+                    console.warn("WhatsApp failed msg error:", e);
+                }
                 setError('Payment failed. Please try again.');
                 setLoading(false);
             });
