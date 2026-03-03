@@ -133,15 +133,8 @@ export const LeadForm: React.FC = () => {
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                     />
 
-                    {/* SMART GRADIENT OVERLAY */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-black/30 md:bg-gradient-to-r md:from-transparent md:via-black/20 md:to-[#050505]"></div>
-
-                    {/* Content Overlay - Bottom subtitle only */}
-                    <div className="absolute bottom-8 left-6 right-6 md:bottom-12 md:left-12 md:right-12 z-10">
-                        <p className="text-white text-sm md:text-base font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] max-w-xs leading-relaxed bg-black/40 backdrop-blur-sm inline-block px-4 py-2 rounded-xl border border-white/10">
-                            Join the elite circle of communicators. Limited seats available.
-                        </p>
-                    </div>
+                    {/* SMART GRADIENT OVERLAY - just bottom fade */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:via-black/20 md:to-[#050505]"></div>
                 </div>
 
                 {/* FORM SECTION */}
