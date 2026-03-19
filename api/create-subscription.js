@@ -9,8 +9,8 @@ export default async function handler(req, res) {
         // Initialize Razorpay SDK
         // IMPORTANT: Set these variables in your .env or Vercel environment
         const razorpay = new Razorpay({
-            key_id: process.env.VITE_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || 'YOUR_KEY_ID',
-            key_secret: process.env.RAZORPAY_KEY_SECRET || 'YOUR_KEY_SECRET',
+            key_id: process.env.VITE_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID || 'rzp_live_SHHmRMqeg5U0Ci',
+            key_secret: process.env.RAZORPAY_KEY_SECRET || 'qfjEBKB0hiRtuI0BOY2OiZeI',
         });
 
         // 1. Calculate the UNIX timestamp for exactly 30 days in the future
@@ -21,8 +21,8 @@ export default async function handler(req, res) {
 
         // 2. Setup subscription payload
         const subscriptionParams = {
-            // Must be replaced with the actual plan ID created in Razorpay Dashboard
-            plan_id: process.env.RAZORPAY_PLAN_ID || 'plan_YOUR_PLAN_ID',
+            // Evaluates to actual plan ID created in Razorpay Dashboard
+            plan_id: process.env.RAZORPAY_PLAN_ID || 'plan_STAlVsMEU6VYbD',
             total_count: 12, // Number of billing cycles (e.g. 12 months)
             quantity: 1,
             start_at: startAt,       // Starts exactly 30 days later
