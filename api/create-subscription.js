@@ -1,10 +1,14 @@
 import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error("CRITICAL: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured in environment variables. Aborting initialization.");
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -52,19 +56,23 @@ export default async function handler(req, res) {
         const subscription = await razorpay.subscriptions.create(subscriptionParams);
 
         // 4. Insert row into Supabase leads table using service role key
-        try {
-            const fullName = req.body?.name || '';
-            const phoneStr = req.body?.phone || '';
+        const fullName = req.body?.name || '';
+        const phoneStr = req.body?.phone || '';
 
-            await supabase.from('leads').insert([{
-                phone: phoneStr,
-                wa_name: fullName,
-                phone_id: subscription.id, // Store Razorpay subscription_id here temporarily
-                source: "razorpay_subscription",
-                first_name: fullName.split(' ')[0]
-            }]);
-        } catch (dbError) {
-            console.error("Supabase insert error (api):", dbError);
+        const { data: insertData, error: dbError } = await supabase.from('leads').insert([{
+            phone: phoneStr,
+            wa_name: fullName,
+            subscription_id: subscription.id,
+            source: "razorpay_subscription",
+            first_name: fullName.split(' ')[0]
+        }]);
+
+        if (dbError) {
+            console.error("Supabase insert error (api):", dbError, {
+                subscription_id: subscription.id,
+                reqBody: req.body
+            });
+            throw new Error(`Failed to initialize lead tracking: ${dbError.message}`);
         }
 
         // 5. Return the new subscription details to the frontend
