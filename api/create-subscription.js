@@ -37,8 +37,8 @@ export default async function handler(req, res) {
                 }
             ],
             notes: {
-                lead_id: lead_id || '',
-                phone: phone || ''
+                name: req.body?.name || '',
+                phone: req.body?.phone || ''
             }
         };
 

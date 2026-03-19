@@ -34,31 +34,47 @@ export default async function handler(req, res) {
             const payment = payload.payment?.entity;
             
             if (subscription) {
-                // Extract identifying notes passed during subscription creation
+                // Extract identifying notes passed from LeadForm -> create-subscription -> Webhook
                 const notes = subscription.notes || {};
-                const phoneStr = notes.phone || '';
-                const leadId = notes.lead_id || '';
+                const phoneStr = notes.phone || payment?.contact || '';
+                const fullName = notes.name || '';
+                const emailStr = payment?.email || '';
 
-                // Map Razorpay data to your Supabase schema
+                // Map Razorpay data to your Supabase schema exactly as requested by user
                 const updateData = {
+                    name: fullName,
+                    first_name: fullName.split(' ')[0], // Best effort first name
+                    phone: phoneStr,
+                    email: emailStr,
+                    payment_id: payment?.id,
                     subscription_id: subscription.id,
                     subscription_status: subscription.status,
                     plan_id: subscription.plan_id,
+                    status: 'active', // Or active as requested
+                    source: 'website'
                 };
                 
                 if (payment) {
-                    updateData.payment_id = payment.id;
                     updateData.amount = payment.amount / 100; // Store exact amount paid
-                    updateData.status = 'paid';
                 }
 
-                // Identify the user and update the database row safely
-                if (leadId) {
-                    await supabase.from('leads').update(updateData).eq('id', leadId);
-                } else if (phoneStr) {
-                    await supabase.from('leads').update(updateData).eq('phone', phoneStr);
+                // Upsert logic for Supabase tracking using Service Role
+                if (phoneStr) {
+                    // Try to find existing lead by phone
+                    const { data: existingLeads } = await supabase
+                        .from('leads')
+                        .select('id')
+                        .eq('phone', phoneStr);
+                        
+                    if (existingLeads && existingLeads.length > 0) {
+                        // Update existing row
+                        await supabase.from('leads').update(updateData).eq('id', existingLeads[0].id);
+                    } else {
+                        // Insert entirely new row if not exist
+                        await supabase.from('leads').insert([updateData]);
+                    }
                 } else {
-                    console.warn(`Webhook processed but no lead_id or phone was attached to subscription notes for sub_id: ${subscription.id}`);
+                    console.warn(`Webhook processed but no phone was attached to subscription notes for sub_id: ${subscription.id}`);
                 }
             }
         }

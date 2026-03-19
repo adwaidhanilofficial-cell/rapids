@@ -52,33 +52,14 @@ export const LeadForm: React.FC = () => {
             }
             const phoneWith91 = '91' + formattedPhone;
 
-            // Check if lead exists (from WhatsApp flow) → UPDATE, don't create duplicate
-            const { data: existing } = await supabase
-                .from('leads')
-                .select('id')
-                .eq('phone', phoneWith91)
-                .maybeSingle();
-
-            let leadId: string;
-            if (existing) {
-                await supabase
-                    .from('leads')
-                    .update({ name: name.trim(), source: 'whatsapp+website' })
-                    .eq('id', existing.id);
-                leadId = existing.id;
-            } else {
-                const { data: newLead } = await supabase
-                    .from('leads')
-                    .insert([{ name: name.trim(), phone: phoneWith91, source: 'website' }])
-                    .select()
-                    .single();
-                leadId = newLead?.id || '';
-            }
+            // Frontend cannot insert into Supabase due to RLS, so this will be handled entirely by the backend webhook after successful payment
+            const leadId = '';
 
             // 1. Call custom backend to generate Razorpay subscription
             const subResponse = await fetch('/api/create-subscription', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name.trim(), phone: phoneWith91 })
             });
             const subData = await subResponse.json();
 
@@ -96,15 +77,9 @@ export const LeadForm: React.FC = () => {
                 handler: async function (response: any) {
                     const paymentId = response.razorpay_payment_id;
                     const subscriptionId = response.razorpay_subscription_id;
-                    // 1. Update Supabase
-                    try {
-                        await supabase
-                            .from('leads')
-                            .update({ status: 'paid', payment_id: paymentId, funnel_stage: 'paid' })
-                            .eq('id', leadId);
-                    } catch (e) {
-                        console.warn("Supabase update error (webhook backup):", e);
-                    }
+                    
+                    // Supabase state is now updated securely via Webhook
+                    
                     // 2. Send WhatsApp confirmation message SAFELY
                     try {
                         const payload = JSON.stringify({
@@ -115,7 +90,6 @@ export const LeadForm: React.FC = () => {
                             status: 'paid'
                         });
 
-                        // Force a strict await so the browser CANNOT cancel the request
                         await fetch('/api/send-whatsapp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -124,10 +98,10 @@ export const LeadForm: React.FC = () => {
                     } catch (e) {
                         console.warn("WhatsApp send error:", e);
                     }
-                    // 3. Navigate to success page
-                    navigate('/success', {
-                        state: { name, phone: phoneWith91, leadId, paymentId }
-                    });
+                    
+                    // 3. Navigate to success page gracefully
+                    setError(null);
+                    window.location.href = '/thank-you';
                 },
                 modal: {
                     ondismiss: function () {
@@ -148,7 +122,8 @@ export const LeadForm: React.FC = () => {
             };
 
             const rzp = new (window as any).Razorpay(options);
-            rzp.on('payment.failed', async function () {
+            rzp.on('payment.failed', async function (response: any) {
+                console.error("Payment failed", response.error);
                 // Send WhatsApp failed notification
                 try {
                     const payload = JSON.stringify({
@@ -164,7 +139,7 @@ export const LeadForm: React.FC = () => {
                 } catch (e) {
                     console.warn("WhatsApp failed msg error:", e);
                 }
-                setError('Payment failed. Please try again.');
+                setError(`Payment issue: ${response?.error?.description || 'Please try again.'}`);
                 setLoading(false);
             });
             rzp.open();
