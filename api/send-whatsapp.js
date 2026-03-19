@@ -13,15 +13,18 @@ export default async function handler(req, res) {
     if (!phone) return res.status(400).json({ error: 'Missing phone' });
 
     const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
-    const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_ID || '104161818385696178';
+    const PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_ID || '1041618385696178';
 
     if (!WHATSAPP_TOKEN) {
-        console.error('WHATSAPP_TOKEN not set in environment');
-        return res.status(500).json({ error: 'Server config error' });
+        console.error('WHATSAPP_TOKEN not set');
+        return res.status(500).json({ error: 'WHATSAPP_TOKEN not configured' });
+    }
+    if (!PHONE_NUMBER_ID || PHONE_NUMBER_ID === '631elaborating') {
+        console.error('WHATSAPP_PHONE_ID not set');
+        return res.status(500).json({ error: 'WHATSAPP_PHONE_ID not configured' });
     }
 
     let messageBody;
-
     if (status === 'paid' || status === 'success') {
         messageBody = {
             messaging_product: "whatsapp",
@@ -41,33 +44,32 @@ export default async function handler(req, res) {
             }
         };
     } else {
-        return res.status(400).json({ error: 'Invalid status' });
+        return res.status(400).json({ error: 'Invalid status. Use "paid" or "failed"' });
     }
 
+    const url = `https://graph.facebook.com/v21.0/${PHONE_NUMBER_ID}/messages`;
+    console.log('Calling WhatsApp API:', url, 'phone:', phone);
+
     try {
-        const response = await fetch(
-            `https://graph.facebook.com/v25.0/${PHONE_NUMBER_ID}/messages`,
-            {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(messageBody),
-            }
-        );
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${WHATSAPP_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(messageBody),
+        });
 
         const data = await response.json();
-        console.log('WhatsApp API response:', JSON.stringify(data));
+        console.log('WhatsApp API response:', response.status, JSON.stringify(data));
 
         if (response.ok) {
             return res.status(200).json({ success: true, messageId: data.messages?.[0]?.id });
         } else {
-            console.error('WhatsApp API error:', data);
             return res.status(500).json({ error: 'WhatsApp API failed', details: data });
         }
     } catch (err) {
-        console.error('Fetch error:', err);
+        console.error('Fetch error:', err.message);
         return res.status(500).json({ error: err.message });
     }
 }

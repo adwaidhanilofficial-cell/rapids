@@ -75,16 +75,27 @@ export const LeadForm: React.FC = () => {
                 leadId = newLead?.id || '';
             }
 
+            // 1. Call custom backend to generate Razorpay subscription
+            const subResponse = await fetch('/api/create-subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const subData = await subResponse.json();
+
+            if (!subResponse.ok || !subData.subscription_id) {
+                throw new Error(subData.error || 'Failed to initialize subscription');
+            }
+
             // Launch Razorpay Checkout Dashboard (with UPI apps: GPay, PhonePe, etc.)
             const options = {
-                key: "rzp_live_SHHmRMqeg5U0Ci",
-                amount: 500, // ₹5 in paise (change to 49900 for ₹499 in production)
-                currency: "INR",
+                key: "rzp_live_SHHmRMqeg5U0Ci", // Ideally fetch this securely or match with backend key
+                subscription_id: subData.subscription_id,
                 name: "Rapids Training",
-                description: "Seat Booking Fee",
+                description: "Pro Membership AutoPay",
                 image: "https://bovrapqqwxwemjfpqkqr.supabase.co/storage/v1/object/public/rapids-images/pitch.png",
                 handler: async function (response: any) {
                     const paymentId = response.razorpay_payment_id;
+                    const subscriptionId = response.razorpay_subscription_id;
                     // 1. Update Supabase
                     try {
                         await supabase
@@ -94,18 +105,21 @@ export const LeadForm: React.FC = () => {
                     } catch (e) {
                         console.warn("Supabase update error (webhook backup):", e);
                     }
-                    // 2. Send WhatsApp confirmation message
+                    // 2. Send WhatsApp confirmation message SAFELY
                     try {
+                        const payload = JSON.stringify({
+                            phone: phoneWith91,
+                            paymentId,
+                            amount: 5,
+                            name: name.trim(),
+                            status: 'paid'
+                        });
+
+                        // Force a strict await so the browser CANNOT cancel the request
                         await fetch('/api/send-whatsapp', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                phone: phoneWith91,
-                                paymentId,
-                                amount: 5,
-                                name: name.trim(),
-                                status: 'paid'
-                            })
+                            body: payload
                         });
                     } catch (e) {
                         console.warn("WhatsApp send error:", e);
@@ -114,6 +128,11 @@ export const LeadForm: React.FC = () => {
                     navigate('/success', {
                         state: { name, phone: phoneWith91, leadId, paymentId }
                     });
+                },
+                modal: {
+                    ondismiss: function () {
+                        setLoading(false);
+                    }
                 },
                 prefill: {
                     name: name.trim(),
@@ -132,14 +151,15 @@ export const LeadForm: React.FC = () => {
             rzp.on('payment.failed', async function () {
                 // Send WhatsApp failed notification
                 try {
+                    const payload = JSON.stringify({
+                        phone: phoneWith91,
+                        name: name.trim(),
+                        status: 'failed'
+                    });
                     await fetch('/api/send-whatsapp', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            phone: phoneWith91,
-                            name: name.trim(),
-                            status: 'failed'
-                        })
+                        body: payload
                     });
                 } catch (e) {
                     console.warn("WhatsApp failed msg error:", e);
