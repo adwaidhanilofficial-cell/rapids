@@ -61,9 +61,23 @@ export const LeadForm: React.FC = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: name.trim(), phone: phoneWith91 })
             });
-            const subData = await subResponse.json();
+            
+            let subData;
+            if (!subResponse.ok) {
+                let errorMsg = 'Server error occurred during subscription prep.';
+                try {
+                    const errorData = await subResponse.json();
+                    errorMsg = errorData.error || errorMsg;
+                } catch (e) {
+                    // Fallback if Vercel returns HTML error
+                    errorMsg = "A server configuration error occurred. Please try again soon.";
+                }
+                throw new Error(errorMsg);
+            } else {
+                subData = await subResponse.json();
+            }
 
-            if (!subResponse.ok || !subData.subscription_id) {
+            if (!subData.subscription_id) {
                 throw new Error(subData.error || 'Failed to initialize subscription');
             }
 
@@ -118,7 +132,7 @@ export const LeadForm: React.FC = () => {
                     contact: phoneWith91,
                 },
                 notes: {
-                    lead_id: leadId,
+                    lead_id: subData.lead_id || leadId,
                     phone: phoneWith91,
                 },
                 theme: {
