@@ -1,4 +1,10 @@
 import Razorpay from 'razorpay';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+    process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+);
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -45,7 +51,23 @@ export default async function handler(req, res) {
         // 3. Call Razorpay Subscriptions API
         const subscription = await razorpay.subscriptions.create(subscriptionParams);
 
-        // 4. Return the new subscription details to the frontend
+        // 4. Insert row into Supabase leads table using service role key
+        try {
+            const fullName = req.body?.name || '';
+            const phoneStr = req.body?.phone || '';
+
+            await supabase.from('leads').insert([{
+                phone: phoneStr,
+                wa_name: fullName,
+                phone_id: subscription.id, // Store Razorpay subscription_id here temporarily
+                source: "razorpay_subscription",
+                first_name: fullName.split(' ')[0]
+            }]);
+        } catch (dbError) {
+            console.error("Supabase insert error (api):", dbError);
+        }
+
+        // 5. Return the new subscription details to the frontend
         res.status(200).json({
             subscription_id: subscription.id,
             subscription_details: subscription

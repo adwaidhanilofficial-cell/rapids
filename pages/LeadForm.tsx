@@ -75,33 +75,38 @@ export const LeadForm: React.FC = () => {
                 description: "Pro Membership AutoPay",
                 image: "https://bovrapqqwxwemjfpqkqr.supabase.co/storage/v1/object/public/rapids-images/pitch.png",
                 handler: async function (response: any) {
-                    const paymentId = response.razorpay_payment_id;
-                    const subscriptionId = response.razorpay_subscription_id;
-                    
-                    // Supabase state is now updated securely via Webhook
-                    
-                    // 2. Send WhatsApp confirmation message SAFELY
                     try {
-                        const payload = JSON.stringify({
-                            phone: phoneWith91,
-                            paymentId,
-                            amount: 5,
-                            name: name.trim(),
-                            status: 'paid'
-                        });
+                        const paymentId = response.razorpay_payment_id;
+                        const subscriptionId = response.razorpay_subscription_id;
+                        
+                        // Supabase state is now updated securely via Webhook
+                        
+                        // 2. Send WhatsApp confirmation message SAFELY
+                        try {
+                            const payload = JSON.stringify({
+                                phone: phoneWith91,
+                                paymentId,
+                                amount: 5,
+                                name: name.trim(),
+                                status: 'paid'
+                            });
 
-                        await fetch('/api/send-whatsapp', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: payload
-                        });
-                    } catch (e) {
-                        console.warn("WhatsApp send error:", e);
+                            await fetch('/api/send-whatsapp', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: payload
+                            });
+                        } catch (e) {
+                            console.warn("WhatsApp send error:", e);
+                        }
+                        
+                        // 3. Navigate to success page gracefully
+                        setError(null);
+                        window.location.href = '/thank-you';
+                    } catch (handlerErr) {
+                        console.error("Critical error inside payment success handler:", handlerErr);
+                        window.location.href = '/thank-you'; // Still redirect so they aren't stuck if it already charged
                     }
-                    
-                    // 3. Navigate to success page gracefully
-                    setError(null);
-                    window.location.href = '/thank-you';
                 },
                 modal: {
                     ondismiss: function () {
@@ -123,24 +128,30 @@ export const LeadForm: React.FC = () => {
 
             const rzp = new (window as any).Razorpay(options);
             rzp.on('payment.failed', async function (response: any) {
-                console.error("Payment failed", response.error);
-                // Send WhatsApp failed notification
                 try {
-                    const payload = JSON.stringify({
-                        phone: phoneWith91,
-                        name: name.trim(),
-                        status: 'failed'
-                    });
-                    await fetch('/api/send-whatsapp', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: payload
-                    });
-                } catch (e) {
-                    console.warn("WhatsApp failed msg error:", e);
+                    console.error("Payment failed", response.error);
+                    // Send WhatsApp failed notification
+                    try {
+                        const payload = JSON.stringify({
+                            phone: phoneWith91,
+                            name: name.trim(),
+                            status: 'failed'
+                        });
+                        await fetch('/api/send-whatsapp', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: payload
+                        });
+                    } catch (e) {
+                        console.warn("WhatsApp failed msg error:", e);
+                    }
+                    setError(`Payment issue: ${response?.error?.description || 'Please try again.'}`);
+                    setLoading(false);
+                } catch (failErr) {
+                    console.error("Error in fallback handler:", failErr);
+                    setError('An unexpected error occurred during payment. Please try again.');
+                    setLoading(false);
                 }
-                setError(`Payment issue: ${response?.error?.description || 'Please try again.'}`);
-                setLoading(false);
             });
             rzp.open();
         } catch (err: any) {
