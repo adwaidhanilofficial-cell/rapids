@@ -55,8 +55,9 @@
             const options = {
                 "key": RAZORPAY_KEY_ID, 
                 "subscription_id": data.subscription_id,
-                "name": "Rapids Training",
+                "name": "Rapids.in",
                 "description": "Pro Membership AutoPay",
+                "image": "https://rapids.in/rapids-logo.png",
                 "currency": "INR",
                 "handler": function (response) {
                     // 3. Handle successful authorisation
@@ -78,7 +79,12 @@
                     "contact": "9999999999"
                 },
                 "theme": {
-                    "color": "#1a202c"
+                    "color": "#E03E3E"
+                },
+                "modal": {
+                    "backdropclose": false,
+                    "escape": false,
+                    "animation": true
                 }
             };
 

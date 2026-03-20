@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Icon } from '../components/Icon';
-import { BLOG_POSTS } from '../data/blogData';
+import { Icon } from '../components/icon';
+import { BLOG_POSTS } from '../data/blog-data';
 
 export const LandingCommunication: React.FC = () => {
     const navigate = useNavigate();

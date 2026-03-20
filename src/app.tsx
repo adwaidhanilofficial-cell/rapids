@@ -1,22 +1,22 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { Navbar } from './components/Navigation';
-import { Home } from './pages/Home';
-import { Courses } from './pages/Courses';
-import { LandingCommunication } from './pages/LandingCommunication';
-import { LeadForm } from './pages/LeadForm';
-import { Success } from './pages/Success';
-import { BookRedirect } from './pages/BookRedirect';
-import { Article } from './pages/Article';
-import { Blog } from './pages/Blog';
-import { ContactUs } from './pages/ContactUs';
-import { Support } from './pages/Support';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { TermsAndConditions } from './pages/TermsAndConditions';
-import { RefundPolicy } from './pages/RefundPolicy';
-import { ShippingPolicy } from './pages/ShippingPolicy';
-import { AboutUs } from './pages/Legal';
+import { Navbar } from './components/navigation';
+import { Home } from './pages/home-page';
+import { Courses } from './pages/courses-page';
+import { LandingCommunication } from './pages/landing-communication-page';
+import { LeadForm } from './pages/lead-form-page';
+import { Success } from './pages/success-page';
+import { BookRedirect } from './pages/book-redirect-page';
+import { Article } from './pages/article-page';
+import { Blog } from './pages/blog-page';
+import { ContactUs } from './pages/contact-us-page';
+import { Support } from './pages/support-page';
+import { PrivacyPolicy } from './pages/privacy-policy-page';
+import { TermsAndConditions } from './pages/terms-and-conditions-page';
+import { RefundPolicy } from './pages/refund-policy-page';
+import { ShippingPolicy } from './pages/shipping-policy-page';
+import { AboutUs } from './pages/legal-page';
 
 // Scroll to top on route change
 function ScrollToTop() {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { supabase } from '../lib/supabaseClient';
-import { ErrorBoundary } from '../components/ErrorBoundary';
+import { supabase } from '../lib/supabase-client';
+import { ErrorBoundary } from '../components/error-boundary';
 
 declare global {
     interface Window {
@@ -21,6 +21,12 @@ export const LeadForm: React.FC = () => {
 
     // Pre-fill from URL params (from WhatsApp link)
     useEffect(() => {
+        // Preload Razorpay script as soon as checkout page mounts
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+
         const urlPhone = searchParams.get('phone') || '';
         const urlName = searchParams.get('name') || '';
         if (urlPhone) {
@@ -33,6 +39,10 @@ export const LeadForm: React.FC = () => {
             setPhoneLocked(true); // Lock the phone field
         }
         if (urlName) setName(decodeURIComponent(urlName));
+
+        return () => {
+            document.body.removeChild(script);
+        };
     }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -86,47 +96,36 @@ export const LeadForm: React.FC = () => {
             const options = {
                 key: (import.meta as any).env.VITE_RAZORPAY_KEY_ID || "rzp_live_SHHmRMqeg5U0Ci",
                 subscription_id: subData.subscription_id,
-                name: "Rapids Training",
+                name: "Rapids.in",
                 description: "Pro Membership AutoPay",
-                image: "https://bovrapqqwxwemjfpqkqr.supabase.co/storage/v1/object/public/rapids-images/pitch.png",
-                handler: async function (response: any) {
-                    try {
-                        const paymentId = response.razorpay_payment_id;
-                        const subscriptionId = response.razorpay_subscription_id;
-                        
-                        // Supabase state is now updated securely via Webhook
-                        
-                        // 2. Send WhatsApp confirmation message SAFELY
-                        try {
-                            const payload = JSON.stringify({
-                                phone: phoneWith91,
-                                paymentId,
-                                amount: 5,
-                                name: name.trim(),
-                                status: 'paid'
-                            });
+                image: "https://rapids.in/rapids-logo.png",
+                currency: "INR",
+                handler: function (response: any) {
+                    // Immediately redirect — do NOT await anything here
+                    window.location.href = `/thank-you?payment_id=${response.razorpay_payment_id}`;
+                    
+                    // Background processing
+                    const payload = JSON.stringify({
+                        phone: phoneWith91,
+                        paymentId: response.razorpay_payment_id,
+                        amount: 5,
+                        name: name.trim(),
+                        status: 'paid'
+                    });
 
-                            await fetch('/api/send-whatsapp', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: payload
-                            });
-                        } catch (e) {
-                            console.warn("WhatsApp send error:", e);
-                        }
-                        
-                        // 3. Navigate to success page gracefully
-                        setError(null);
-                        window.location.href = '/thank-you';
-                    } catch (handlerErr) {
-                        console.error("Critical error inside payment success handler:", handlerErr);
-                        window.location.href = '/thank-you'; // Still redirect so they aren't stuck if it already charged
-                    }
+                    fetch('/api/send-whatsapp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: payload
+                    }).catch(e => console.warn("WhatsApp send error:", e));
                 },
                 modal: {
                     ondismiss: function () {
                         setLoading(false);
-                    }
+                    },
+                    backdropclose: false,
+                    escape: false,
+                    animation: true
                 },
                 prefill: {
                     name: name.trim(),
@@ -137,8 +136,8 @@ export const LeadForm: React.FC = () => {
                     phone: phoneWith91,
                 },
                 theme: {
-                    color: "#D4AF37",
-                },
+                    color: "#E03E3E"
+                }
             };
 
             const rzp = new (window as any).Razorpay(options);

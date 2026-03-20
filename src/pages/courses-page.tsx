@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Course } from '../types';
-import { Icon } from '../components/Icon';
+import { Icon } from '../components/icon';
 
 export const Courses: React.FC = () => {
     const navigate = useNavigate();

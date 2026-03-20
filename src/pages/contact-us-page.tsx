@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Icon } from '../components/Icon';
+import { Icon } from '../components/icon';
 
 export const ContactUs: React.FC = () => {
     return (

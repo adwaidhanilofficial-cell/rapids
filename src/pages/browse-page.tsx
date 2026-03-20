@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Course } from '../types';
-import { CourseCard } from '../components/CourseCard';
-import { Icon } from '../components/Icon';
+import { CourseCard } from '../components/course-card';
+import { Icon } from '../components/icon';
 
 interface BrowseProps {
     onCourseClick: (course: Course) => void;

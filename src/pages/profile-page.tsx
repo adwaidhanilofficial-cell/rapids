@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { User } from '../types';
-import { Icon } from '../components/Icon';
+import { Icon } from '../components/icon';
 
 interface ProfileProps {
     user: User;

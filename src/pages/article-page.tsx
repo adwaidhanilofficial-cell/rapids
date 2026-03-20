@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Icon } from '../components/Icon';
-import { getBlogPost } from '../data/blogData';
-import { useLanguage } from '../src/context/LanguageContext';
-import '../src/blog.css';
+import { Icon } from '../components/icon';
+import { getBlogPost } from '../data/blog-data';
+import { useLanguage } from '../context/language-context';
+import '../styles/blog.css';
 
 export const Article: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -90,7 +90,6 @@ export const Article: React.FC = () => {
     const toggleMobileTOC = (e: React.MouseEvent) => {
         const details = e.currentTarget.parentElement as HTMLDetailsElement;
         if (details) {
-            // let native behavior handle toggle
         }
     };
 

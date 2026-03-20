@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Icon } from './Icon';
+import { Icon } from './icon';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '../src/context/LanguageContext';
+import { useLanguage } from '../context/language-context';
 
 const navLinks = [
   { path: '/', label: 'Home', sub: 'Main Hub' },

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '../components/Icon';
+import { Icon } from '../components/icon';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BLOG_POSTS } from '../data/blogData';
-
+import { BLOG_POSTS } from '../data/blog-data';
 
 // Social Icons Components (Keep as is)
 const GoogleIcon = () => (

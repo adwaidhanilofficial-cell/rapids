@@ -1,6 +1,6 @@
 import React from 'react';
 import { Course } from '../types';
-import { Icon } from './Icon';
+import { Icon } from './icon';
 
 interface CourseCardProps {
   course: Course;

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircle, MapPin, Download, Phone, MessageCircle, ShieldAlert, AlertTriangle } from 'lucide-react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase-client';
 import { jsPDF } from 'jspdf';
 
 // --- QR Placeholder Base64 (Transparent default) ---
@@ -36,7 +36,6 @@ export function Success() {
 
     const { name, leadId, paymentId, phone } = state;
     const [email, setEmail] = useState('');
-
 
     const [loading, setLoading] = useState(false);
     const [updated, setUpdated] = useState(false);
