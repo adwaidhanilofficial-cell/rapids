@@ -53,7 +53,7 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                     <div className="grid md:grid-cols-2 gap-x-12 gap-y-4">
                         {[
                             { icon: 'person_outline', label: 'Account Settings', desc: 'Manage your personal details' },
-                            { icon: 'payment', label: 'Payment Methods', desc: 'Manage subscriptions & billing' },
+                            { icon: 'payment', label: 'Payment Methods', desc: 'Manage orders & billing' },
                             { icon: 'notifications_none', label: 'Notifications', desc: 'Configure email & push alerts' },
                             { icon: 'language', label: 'Language & Region', desc: 'English (US), CST Timezone' },
                             { icon: 'lock_outline', label: 'Privacy & Security', desc: 'Password & 2FA' },
