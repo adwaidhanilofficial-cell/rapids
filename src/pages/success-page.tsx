@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, MapPin, Download, Phone, MessageCircle, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase-client';
 import { jsPDF } from 'jspdf';
@@ -10,11 +10,17 @@ import { jsPDF } from 'jspdf';
 
 export function Success() {
     const { state } = useLocation();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const profileFormRef = useRef<HTMLDivElement>(null);
 
+    const paymentId = state?.paymentId || searchParams.get('payment_id');
+    const name = state?.name || searchParams.get('name') || '';
+    const leadId = state?.leadId || searchParams.get('lead_id') || '';
+    const phone = state?.phone || searchParams.get('phone') || '';
+
     // SECURITY CHECK
-    if (!state || !state.paymentId) {
+    if (!paymentId) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center px-4">
                 <div className="text-center space-y-6">
@@ -33,8 +39,6 @@ export function Success() {
             </div>
         );
     }
-
-    const { name, leadId, paymentId, phone } = state;
     const [email, setEmail] = useState('');
 
     const [loading, setLoading] = useState(false);
